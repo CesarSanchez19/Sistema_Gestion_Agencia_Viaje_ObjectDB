@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+             http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
+             version="2.1">
+    
+  <persistence-unit name="AgencyTurist" transaction-type="RESOURCE_LOCAL">
+    <provider>com.objectdb.jpa.Provider</provider>
+       <class>com.myagency.travelagencyobjectdb.modelo.Turista</class>
+        <class>com.myagency.travelagencyobjectdb.modelo.ReservaHotel</class>
+
+
+    <properties>
+      <property name="javax.persistence.jdbc.url" value="agencytourist.odb"/>
+      <property name="javax.persistence.jdbc.user" value="admin"/>
+      <property name="javax.persistence.jdbc.password" value="admin"/>
+    </properties>
+
+  </persistence-unit>
+</persistence>
+ 
