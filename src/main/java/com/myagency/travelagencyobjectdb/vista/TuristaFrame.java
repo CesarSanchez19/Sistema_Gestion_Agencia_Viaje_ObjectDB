@@ -1,5 +1,7 @@
 package com.myagency.travelagencyobjectdb.vista;
 
+import java.util.List;
+
 import com.myagency.travelagencyobjectdb.modelo.Turista;
 import com.myagency.travelagencyobjectdb.servicio.TuristaService;
 
@@ -9,16 +11,21 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class TuristaFrame extends JFrame {
+    
+    private MainFrame parent;
 
     private JTextField txtCodigo, txtNombre, txtApellidos, txtDireccion, txtTelefono;
-    private JButton btnGuardar, btnEliminar, btnActualizar, btnLimpiar, btnRefrescar;
+    private JButton btnGuardar, btnEliminar, btnActualizar, btnLimpiar, btnRefrescar, btnRegresar;
     private JTable tablaTuristas;
     private TuristaTableModel tableModel;
 
     private TuristaService turistaService;
     private Turista turistaSeleccionado;
+    
+    
 
-    public TuristaFrame() {
+    public TuristaFrame(MainFrame parent) {
+        this.parent = parent;
         turistaService = new TuristaService();
         initComponents();
         configureFrame();
@@ -26,75 +33,111 @@ public class TuristaFrame extends JFrame {
     }
 
     private void initComponents() {
-        setTitle("Gestión de Turistas");
-        setLayout(new BorderLayout());
+       setTitle("Registros de turistas");
+       setLayout(new BorderLayout());
 
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+       JPanel formPanel = createFormPanel();
+       formPanel.setMinimumSize(new Dimension(300, 400));
+       formPanel.setPreferredSize(new Dimension(300, 400));
 
-        JPanel formPanel = createFormPanel();
-        mainPanel.add(formPanel, BorderLayout.WEST);
+       JPanel tablePanel = createTablePanel();
 
-        JPanel tablePanel = createTablePanel();
-        mainPanel.add(tablePanel, BorderLayout.CENTER);
+       JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, formPanel, tablePanel);
+       splitPane.setDividerLocation(500);
+       splitPane.setResizeWeight(0); 
 
-        add(mainPanel);
+       add(splitPane, BorderLayout.CENTER);
 
-        configureEvents();
-    }
+       configureEvents();
+   }
+
 
     private JPanel createFormPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(new TitledBorder("Datos del Turista"));
-        panel.setPreferredSize(new Dimension(300, 0));
+    JPanel panel = new JPanel(new GridBagLayout());
+    panel.setBorder(new TitledBorder("Datos del Turista"));
+    panel.setMinimumSize(new Dimension(500, 400));
+    
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.insets = new Insets(5, 5, 5, 5);
+    gbc.anchor = GridBagConstraints.WEST;
 
-        // Campos
-        gbc.gridx = 0; gbc.gridy = 0;
-        panel.add(new JLabel("Código:"), gbc);
-        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
-        txtCodigo = new JTextField(15); panel.add(txtCodigo, gbc);
+    // Campo Código
+    gbc.gridx = 0; gbc.gridy = 0;
+    panel.add(new JLabel("Código:"), gbc);
+    gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+    txtCodigo = new JTextField(15);
+    panel.add(txtCodigo, gbc);
 
-        gbc.gridx = 0; gbc.gridy++;
-        gbc.fill = GridBagConstraints.NONE; panel.add(new JLabel("Nombre:"), gbc);
-        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
-        txtNombre = new JTextField(15); panel.add(txtNombre, gbc);
+    // Campo Nombre
+    gbc.gridx = 0; gbc.gridy++;
+    gbc.fill = GridBagConstraints.NONE;
+    panel.add(new JLabel("Nombre:"), gbc);
+    gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+    txtNombre = new JTextField(15);
+    panel.add(txtNombre, gbc);
 
-        gbc.gridx = 0; gbc.gridy++;
-        panel.add(new JLabel("Apellidos:"), gbc);
-        gbc.gridx = 1; txtApellidos = new JTextField(15); panel.add(txtApellidos, gbc);
+    // Campo Apellidos
+    gbc.gridx = 0; gbc.gridy++;
+    panel.add(new JLabel("Apellidos:"), gbc);
+    gbc.gridx = 1;
+    txtApellidos = new JTextField(15);
+    panel.add(txtApellidos, gbc);
 
-        gbc.gridx = 0; gbc.gridy++;
-        panel.add(new JLabel("Dirección:"), gbc);
-        gbc.gridx = 1; txtDireccion = new JTextField(15); panel.add(txtDireccion, gbc);
+    // Campo Dirección
+    gbc.gridx = 0; gbc.gridy++;
+    panel.add(new JLabel("Dirección:"), gbc);
+    gbc.gridx = 1;
+    txtDireccion = new JTextField(15);
+    panel.add(txtDireccion, gbc);
 
-        gbc.gridx = 0; gbc.gridy++;
-        panel.add(new JLabel("Teléfono:"), gbc);
-        gbc.gridx = 1; txtTelefono = new JTextField(15); panel.add(txtTelefono, gbc);
+    // Campo Teléfono
+    gbc.gridx = 0; gbc.gridy++;
+    panel.add(new JLabel("Teléfono:"), gbc);
+    gbc.gridx = 1;
+    txtTelefono = new JTextField(15);
+    panel.add(txtTelefono, gbc);
 
-        // Botones
-        JPanel buttonPanel = new JPanel(new GridLayout(5, 1, 5, 5));
-        btnGuardar = new JButton("Guardar");
-        btnActualizar = new JButton("Actualizar"); btnActualizar.setEnabled(false);
-        btnEliminar = new JButton("Eliminar"); btnEliminar.setEnabled(false);
-        btnLimpiar = new JButton("Limpiar");
-        btnRefrescar = new JButton("Refrescar");
+    // Panel de botones con BoxLayout vertical
+    JPanel buttonPanel = new JPanel();
+    buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+    buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-        buttonPanel.add(btnGuardar);
-        buttonPanel.add(btnActualizar);
-        buttonPanel.add(btnEliminar);
-        buttonPanel.add(btnLimpiar);
-        buttonPanel.add(btnRefrescar);
+    btnGuardar = new JButton("Guardar");
+    btnActualizar = new JButton("Actualizar"); btnActualizar.setEnabled(false);
+    btnEliminar = new JButton("Eliminar"); btnEliminar.setEnabled(false);
+    btnLimpiar = new JButton("Limpiar");
+    btnRefrescar = new JButton("Refrescar");
+    btnRegresar = new JButton("Regresar al Menú Principal");
+    
+    btnGuardar.setBorder(BorderFactory.createLineBorder(new Color(76, 175, 80)));
+    btnActualizar.setBorder(BorderFactory.createLineBorder(new Color(33, 150, 243)));
+    btnEliminar.setBorder(BorderFactory.createLineBorder(new Color(244, 67, 54)));
+    btnRegresar.setBorder(BorderFactory.createLineBorder(new Color(255, 152, 0)));
 
-        gbc.gridx = 0; gbc.gridy++;
-        gbc.gridwidth = 2; gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel.add(buttonPanel, gbc);
-
-        return panel;
+    for (JButton btn : new JButton[]{btnGuardar, btnActualizar, btnEliminar, btnLimpiar, btnRefrescar, btnRegresar}) {
+        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        Dimension btnSize = new Dimension(180, 30);
+        btn.setMaximumSize(btnSize);
+        btn.setPreferredSize(btnSize);
+        buttonPanel.add(Box.createVerticalStrut(15));
+        buttonPanel.add(btn);
     }
+
+    // Acción regresar
+    btnRegresar.addActionListener(e -> {
+        this.dispose();
+        parent.setVisible(true);
+    });
+
+    // Añadir al formulario
+    gbc.gridx = 0; gbc.gridy++;
+    gbc.gridwidth = 2;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    panel.add(buttonPanel, gbc);
+
+    return panel;
+}
 
     private JPanel createTablePanel() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -104,6 +147,14 @@ public class TuristaFrame extends JFrame {
         tablaTuristas = new JTable(tableModel);
         tablaTuristas.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tablaTuristas.setRowHeight(25);
+        
+        /* Configurar ancho de columnas */
+        tablaTuristas.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tablaTuristas.getColumnModel().getColumn(1).setPreferredWidth(100);
+        tablaTuristas.getColumnModel().getColumn(2).setPreferredWidth(100);
+        tablaTuristas.getColumnModel().getColumn(3).setPreferredWidth(60);
+        tablaTuristas.getColumnModel().getColumn(4).setPreferredWidth(60);
+        tablaTuristas.getColumnModel().getColumn(5).setPreferredWidth(100);
 
         JScrollPane scrollPane = new JScrollPane(tablaTuristas);
         panel.add(scrollPane, BorderLayout.CENTER);
@@ -112,10 +163,12 @@ public class TuristaFrame extends JFrame {
     }
 
     private void configureFrame() {
-        setSize(850, 500);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setMinimumSize(new Dimension(900, 500));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
+
 
     private void configureEvents() {
         tablaTuristas.getSelectionModel().addListSelectionListener(e -> {
@@ -206,9 +259,12 @@ public class TuristaFrame extends JFrame {
         txtTelefono.setText(t.getTelefono());
     }
 
-    private void loadData() {
-        tableModel.setTuristas(turistaService.obtenerTodos());
-    }
+private void loadData() {
+    List<Turista> lista = turistaService.obtenerTodos();
+    lista.sort((a, b) -> Long.compare(a.getId(), b.getId())); // Ordena por ID ascendente
+    tableModel.setTuristas(lista);
+}
+
 
     private boolean validarCampos() {
         if (txtCodigo.getText().trim().isEmpty() || txtNombre.getText().trim().isEmpty() ||

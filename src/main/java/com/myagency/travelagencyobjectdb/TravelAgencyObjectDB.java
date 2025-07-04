@@ -9,7 +9,7 @@ public class TravelAgencyObjectDB {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
-            System.err.println("Error al configurar Look and Feel: " + e.getMessage());
+            System.err.println("Error al configurar: " + e.getMessage());
         }
 
         SwingUtilities.invokeLater(() -> {

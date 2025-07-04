@@ -13,10 +13,12 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 
 public class ReservaHotelFrame extends JFrame {
+    
+    private MainFrame parent;
 
     private JTextField txtCodigoReserva, txtNombreHotel, txtFechaEntrada, txtFechaSalida;
     private JComboBox<Turista> cbTuristas;
-    private JButton btnGuardar, btnEliminar, btnActualizar, btnLimpiar, btnRefrescar;
+    private JButton btnGuardar, btnEliminar, btnActualizar, btnLimpiar, btnRefrescar, btnRegresar;
     private JTable tablaReservas;
     private ReservaHotelTableModel tableModel;
 
@@ -24,7 +26,8 @@ public class ReservaHotelFrame extends JFrame {
     private TuristaService turistaService;
     private ReservaHotel reservaSeleccionada;
 
-    public ReservaHotelFrame() {
+    public ReservaHotelFrame(MainFrame parent) {
+        this.parent = parent;
         reservaService = new ReservaHotelService();
         turistaService = new TuristaService();
         initComponents();
@@ -34,91 +37,115 @@ public class ReservaHotelFrame extends JFrame {
     }
 
     private void initComponents() {
-        setTitle("Gestión de Reservas de Hotel");
+        setTitle("Reservaciones de Hoteles");
         setLayout(new BorderLayout());
 
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
         JPanel formPanel = createFormPanel();
-        mainPanel.add(formPanel, BorderLayout.WEST);
+        formPanel.setMinimumSize(new Dimension(300, 400));
+        formPanel.setPreferredSize(new Dimension(300, 400));
 
         JPanel tablePanel = createTablePanel();
-        mainPanel.add(tablePanel, BorderLayout.CENTER);
 
-        add(mainPanel);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, formPanel, tablePanel);
+        splitPane.setDividerLocation(500); 
+        splitPane.setResizeWeight(0);       
+
+        add(splitPane, BorderLayout.CENTER);
 
         configureEvents();
     }
 
     private JPanel createFormPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(new TitledBorder("Datos de la Reserva"));
-        panel.setPreferredSize(new Dimension(320, 0));
+    JPanel panel = new JPanel(new GridBagLayout());
+    panel.setBorder(new TitledBorder("Datos de la Reservacion"));
+    panel.setMinimumSize(new Dimension(500, 400));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5,5,5,5);
-        gbc.anchor = GridBagConstraints.WEST;
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.insets = new Insets(5, 5, 5, 5);
+    gbc.anchor = GridBagConstraints.WEST;
 
-        // Código Reserva
-        gbc.gridx = 0; gbc.gridy = 0;
-        panel.add(new JLabel("Código Reserva:"), gbc);
-        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
-        txtCodigoReserva = new JTextField(15);
-        panel.add(txtCodigoReserva, gbc);
+    // Código Reserva
+    gbc.gridx = 0; gbc.gridy = 0;
+    panel.add(new JLabel("Código Reserva:"), gbc);
+    gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+    txtCodigoReserva = new JTextField(15);
+    panel.add(txtCodigoReserva, gbc);
 
-        // Nombre Hotel
-        gbc.gridx = 0; gbc.gridy++;
-        gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("Nombre Hotel:"), gbc);
-        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
-        txtNombreHotel = new JTextField(15);
-        panel.add(txtNombreHotel, gbc);
+    // Nombre Hotel
+    gbc.gridx = 0; gbc.gridy++;
+    gbc.fill = GridBagConstraints.NONE;
+    panel.add(new JLabel("Nombre Hotel:"), gbc);
+    gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+    txtNombreHotel = new JTextField(15);
+    panel.add(txtNombreHotel, gbc);
 
-        // Fecha Entrada (yyyy-MM-dd)
-        gbc.gridx = 0; gbc.gridy++;
-        gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("Fecha Entrada (yyyy-MM-dd):"), gbc);
-        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
-        txtFechaEntrada = new JTextField(15);
-        panel.add(txtFechaEntrada, gbc);
+    // Fecha Entrada
+    gbc.gridx = 0; gbc.gridy++;
+    gbc.fill = GridBagConstraints.NONE;
+    panel.add(new JLabel("Fecha Entrada (yyyy-MM-dd):"), gbc);
+    gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+    txtFechaEntrada = new JTextField(15);
+    panel.add(txtFechaEntrada, gbc);
 
-        // Fecha Salida (yyyy-MM-dd)
-        gbc.gridx = 0; gbc.gridy++;
-        gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("Fecha Salida (yyyy-MM-dd):"), gbc);
-        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
-        txtFechaSalida = new JTextField(15);
-        panel.add(txtFechaSalida, gbc);
+    // Fecha Salida
+    gbc.gridx = 0; gbc.gridy++;
+    gbc.fill = GridBagConstraints.NONE;
+    panel.add(new JLabel("Fecha Salida (yyyy-MM-dd):"), gbc);
+    gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+    txtFechaSalida = new JTextField(15);
+    panel.add(txtFechaSalida, gbc);
 
-        // Turista (ComboBox)
-        gbc.gridx = 0; gbc.gridy++;
-        gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("Turista:"), gbc);
-        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
-        cbTuristas = new JComboBox<>();
-        panel.add(cbTuristas, gbc);
+    // Turista ComboBox
+    gbc.gridx = 0; gbc.gridy++;
+    gbc.fill = GridBagConstraints.NONE;
+    panel.add(new JLabel("Turista:"), gbc);
+    gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+    cbTuristas = new JComboBox<>();
+    panel.add(cbTuristas, gbc);
 
-        // Botones
-        JPanel buttonPanel = new JPanel(new GridLayout(5,1,5,5));
-        btnGuardar = new JButton("Guardar");
-        btnActualizar = new JButton("Actualizar"); btnActualizar.setEnabled(false);
-        btnEliminar = new JButton("Eliminar"); btnEliminar.setEnabled(false);
-        btnLimpiar = new JButton("Limpiar");
-        btnRefrescar = new JButton("Refrescar");
+    // Panel para botones (uno debajo del otro)
+    JPanel buttonPanel = new JPanel();
+    buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+    buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-        buttonPanel.add(btnGuardar);
-        buttonPanel.add(btnActualizar);
-        buttonPanel.add(btnEliminar);
-        buttonPanel.add(btnLimpiar);
-        buttonPanel.add(btnRefrescar);
+    btnGuardar = new JButton("Guardar");
+    btnActualizar = new JButton("Actualizar"); btnActualizar.setEnabled(false);
+    btnEliminar = new JButton("Eliminar"); btnEliminar.setEnabled(false);
+    btnLimpiar = new JButton("Limpiar");
+    btnRefrescar = new JButton("Refrescar");
+    btnRegresar = new JButton("Regresar al Menú");
+    
+    btnGuardar.setBorder(BorderFactory.createLineBorder(new Color(76, 175, 80)));
+    btnActualizar.setBorder(BorderFactory.createLineBorder(new Color(33, 150, 243)));
+    btnEliminar.setBorder(BorderFactory.createLineBorder(new Color(244, 67, 54)));
+    btnRegresar.setBorder(BorderFactory.createLineBorder(new Color(255, 152, 0)));
 
-        gbc.gridx = 0; gbc.gridy++;
-        gbc.gridwidth = 2; gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel.add(buttonPanel, gbc);
-
-        return panel;
+    // Agregar botones al panel
+    for (JButton btn : new JButton[]{btnGuardar, btnActualizar, btnEliminar, btnLimpiar, btnRefrescar, btnRegresar}) {
+        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        Dimension btnSize = new Dimension(180, 35);
+        btn.setMaximumSize(btnSize);
+        btn.setPreferredSize(btnSize);
+        buttonPanel.add(Box.createVerticalStrut(15));
+        buttonPanel.add(btn);
     }
+
+
+    // Acción para regresar
+    btnRegresar.addActionListener(e -> {
+        this.dispose();
+        parent.setVisible(true);
+    });
+
+    // Agregar el panel de botones
+    gbc.gridx = 0; gbc.gridy++;
+    gbc.gridwidth = 2;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    panel.add(buttonPanel, gbc);
+
+    return panel;
+}
+
 
     private JPanel createTablePanel() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -128,6 +155,15 @@ public class ReservaHotelFrame extends JFrame {
         tablaReservas = new JTable(tableModel);
         tablaReservas.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tablaReservas.setRowHeight(25);
+        
+        /* Configurar ancho de columnas */
+        tablaReservas.getColumnModel().getColumn(0).setPreferredWidth(40);
+        tablaReservas.getColumnModel().getColumn(1).setPreferredWidth(100);
+        tablaReservas.getColumnModel().getColumn(2).setPreferredWidth(100);
+        tablaReservas.getColumnModel().getColumn(3).setPreferredWidth(60);
+        tablaReservas.getColumnModel().getColumn(4).setPreferredWidth(60);
+        tablaReservas.getColumnModel().getColumn(5).setPreferredWidth(100);
+
 
         JScrollPane scrollPane = new JScrollPane(tablaReservas);
         panel.add(scrollPane, BorderLayout.CENTER);
@@ -136,7 +172,8 @@ public class ReservaHotelFrame extends JFrame {
     }
 
     private void configureFrame() {
-        setSize(900, 520);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setMinimumSize(new Dimension(900, 500));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
@@ -267,8 +304,20 @@ public class ReservaHotelFrame extends JFrame {
             mostrarMensaje("Todos los campos son obligatorios", "Validación", JOptionPane.WARNING_MESSAGE);
             return false;
         }
+        try {
+            LocalDate entrada = LocalDate.parse(txtFechaEntrada.getText().trim());
+            LocalDate salida = LocalDate.parse(txtFechaSalida.getText().trim());
+            if (salida.isBefore(entrada)) {
+                mostrarMensaje("La fecha de salida no puede ser anterior a la fecha de entrada.", "Validación", JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+        } catch (DateTimeParseException ex) {
+            mostrarMensaje("Formato de fecha inválido. Use yyyy-MM-dd", "Validación", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
         return true;
     }
+
 
     private void mostrarMensaje(String mensaje, String titulo, int tipo) {
         JOptionPane.showMessageDialog(this, mensaje, titulo, tipo);
